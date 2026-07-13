@@ -1,0 +1,37 @@
+{
+  "happy": [
+    "Kala Chashma",
+    "Nashe Si Chadh Gayi",
+    "Gallan Goodiyan"
+  ],
+  "sad": [
+    "Channa Mereya",
+    "Agar Tum Saath Ho",
+    "Tujhe Bhula Diya"
+  ],
+  "angry": [
+    "Zinda",
+    "Sultan",
+    "Kar Har Maidaan Fateh"
+  ],
+  "neutral": [
+    "Kesariya",
+    "Raataan Lambiyan",
+    "Heeriye"
+  ],
+  "surprise": [
+    "Malang",
+    "Apna Bana Le",
+    "Ilahi"
+  ],
+  "fear": [
+    "Khairiyat",
+    "Phir Le Aya Dil",
+    "Ae Dil Hai Mushkil"
+  ],
+  "disgust": [
+    "Bekhayali",
+    "Phir Bhi Tumko Chaahunga",
+    "Tera Ban Jaunga"
+  ]
+}
