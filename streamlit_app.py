@@ -1,3 +1,4 @@
+from chatbot import chatbot_response
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -6,11 +7,19 @@ import json
 from PIL import Image
 
 # -------------------------------
-# Load CNN Model
+# Page Config
+# -------------------------------
+st.set_page_config(
+    page_title="Emotion Based Music Recommendation",
+    page_icon="🎵",
+    layout="centered"
+)
+
+# -------------------------------
+# Load Model
 # -------------------------------
 model = tf.keras.models.load_model("model/emotion_model.keras")
 
-# Emotion Labels
 emotion_labels = [
     "Angry",
     "Disgust",
@@ -28,29 +37,36 @@ with open("songs.json", "r") as file:
     songs = json.load(file)
 
 # -------------------------------
-# Streamlit UI
+# Title
 # -------------------------------
-st.set_page_config(page_title="Emotion Based Music Recommendation", page_icon="🎵")
-
 st.title("🎵 Emotion Based Music Recommendation System")
-st.write("Upload a face image to detect emotion and get a song recommendation.")
+st.write("Upload a face image to detect emotion and get a music recommendation.")
 
 uploaded_file = st.file_uploader(
-    "Choose an image...",
+    "Choose an image",
     type=["jpg", "jpeg", "png"]
 )
 
+# -------------------------------
+# Emotion Detection
+# -------------------------------
 if uploaded_file is not None:
 
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+
+    st.image(
+        image,
+        caption="Uploaded Image",
+        use_container_width=True
+    )
 
     img = np.array(image)
 
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        cv2.data.haarcascades +
+        "haarcascade_frontalface_default.xml"
     )
 
     faces = face_cascade.detectMultiScale(
@@ -60,7 +76,9 @@ if uploaded_file is not None:
     )
 
     if len(faces) == 0:
-        st.error("No face detected.")
+
+        st.error("❌ No face detected.")
+
     else:
 
         x, y, w, h = faces[0]
@@ -77,14 +95,69 @@ if uploaded_file is not None:
 
         prediction = model.predict(face, verbose=0)
 
+        confidence = np.max(prediction) * 100
+
         emotion = emotion_labels[np.argmax(prediction)]
 
-        st.success(f"Detected Emotion: {emotion}")
+        st.success(f"😊 Detected Emotion: **{emotion}**")
+
+        st.info(f"Confidence: **{confidence:.2f}%**")
 
         emotion_key = emotion.lower()
 
+        if emotion_key in songs:
 
-if emotion_key in songs:
-    st.success(f"🎵 Recommended Song: {np.random.choice(songs[emotion_key])}")
-else:
-    st.warning("No matching emotion found in songs.json")
+            song = np.random.choice(songs[emotion_key])
+
+            st.success(f"🎵 Recommended Song:\n\n**{song}**")
+
+        else:
+
+            st.warning("No song available for this emotion.")
+
+# ===============================
+# Chatbot
+# ===============================
+
+st.markdown("---")
+
+st.header("🤖 AI Project Assistant")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+
+    with st.chat_message(message["role"]):
+
+        st.write(message["content"])
+
+user_input = st.chat_input(
+    "Ask me anything about this project..."
+)
+
+if user_input:
+
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": user_input
+        }
+    )
+
+    with st.chat_message("user"):
+
+        st.write(user_input)
+
+    reply = chatbot_response(user_input)
+
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": reply
+        }
+    )
+
+    with st.chat_message("assistant"):
+
+        st.write(reply)
