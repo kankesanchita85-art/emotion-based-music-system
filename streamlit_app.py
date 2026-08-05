@@ -40,23 +40,36 @@ with open("songs.json", "r") as file:
 # Title
 # -------------------------------
 st.title("🎵 Emotion Based Music Recommendation System")
-st.write("Upload a face image to detect emotion and get a music recommendation.")
+st.write("Detect your emotion and get a music recommendation.")
+
+# ===============================
+# Upload OR Camera
+# ===============================
+
+st.subheader("📷 Choose Image Source")
 
 uploaded_file = st.file_uploader(
-    "Choose an image",
+    "Upload an Image",
     type=["jpg", "jpeg", "png"]
 )
 
-# -------------------------------
+camera_image = st.camera_input("Or Take a Picture")
+
+# If camera image exists, use it
+if camera_image is not None:
+    uploaded_file = camera_image
+
+# ===============================
 # Emotion Detection
-# -------------------------------
+# ===============================
+
 if uploaded_file is not None:
 
     image = Image.open(uploaded_file).convert("RGB")
 
     st.image(
         image,
-        caption="Uploaded Image",
+        caption="Selected Image",
         use_container_width=True
     )
 
@@ -99,9 +112,9 @@ if uploaded_file is not None:
 
         emotion = emotion_labels[np.argmax(prediction)]
 
-        st.success(f"😊 Detected Emotion: **{emotion}**")
+        st.success(f"😊 Detected Emotion: {emotion}")
 
-        st.info(f"Confidence: **{confidence:.2f}%**")
+        st.info(f"Confidence: {confidence:.2f}%")
 
         emotion_key = emotion.lower()
 
@@ -109,14 +122,16 @@ if uploaded_file is not None:
 
             song = np.random.choice(songs[emotion_key])
 
-            st.success(f"🎵 Recommended Song:\n\n**{song}**")
+            st.success("🎵 Recommended Song")
+
+            st.markdown(f"## 🎧 {song}")
 
         else:
 
             st.warning("No song available for this emotion.")
 
 # ===============================
-# Chatbot
+# AI Chatbot
 # ===============================
 
 st.markdown("---")
@@ -146,7 +161,6 @@ if user_input:
     )
 
     with st.chat_message("user"):
-
         st.write(user_input)
 
     reply = chatbot_response(user_input)
@@ -159,5 +173,4 @@ if user_input:
     )
 
     with st.chat_message("assistant"):
-
         st.write(reply)
